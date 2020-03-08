@@ -1,20 +1,16 @@
 function add(numA, numB) {
-    // console.log(numA + numB);
     return parseInt(numA) + parseInt(numB);
 }
 
 function subtract(numA, numB) {
-    // console.log(numA + numB);
     return parseInt(numA) - parseInt(numB);
 }
 
 function multiply(numA, numB) {
-    // console.log(numA + numB);
     return parseInt(numA) * parseInt(numB);
 }
 
 function divide(numA, numB) {
-    // console.log(numA + numB);
     return parseInt(numA) / parseInt(numB);
 }
 
@@ -29,16 +25,17 @@ function clearDisplay() {
 
 //global vars
 const currentDisplay = document.querySelector("#currentdisplay");
-let currentArray = []; //track inputed numbers
 let numbersArray = []; //track joined numbers
 let operatorArray = []; //track operators
 let runningTotal;
+let strCurrent = ""; //track inputted numbers
 
 //display selected numbers when pressed
 const numButtons = document.querySelectorAll('.numbers');
 numButtons.forEach((button) => {
     button.addEventListener('click', function(e) {
-        currentArray.push(e.target.innerHTML);
+
+        strCurrent += e.target.innerHTML;
 
         currentDisplay.textContent += e.target.innerHTML;
         document.body.append(currentDisplay);
@@ -50,13 +47,19 @@ numButtons.forEach((button) => {
 const operatorButtons = document.querySelectorAll('.operators');
 operatorButtons.forEach((button) => {
     button.addEventListener('click', function(e) {
-        //join all selected numbers and push to numbersArray if there's numbers in currentArray
-        if (currentArray.length > 0) {
-            numbersArray.push(currentArray.join(''));
+        //check if user adds more numbers to total after running equals
+        if (numbersArray[0] && numbersArray[0] != strCurrent) {
+                numbersArray[0] = strCurrent;
+                strCurrent = "";
+        }
+
+        //take inputted number and push to numbersArray
+        if (strCurrent.length > 0) {
+            numbersArray.push(strCurrent);
         }
 
         //clear the current array to prep for next number
-        currentArray = [];
+        strCurrent = "";
 
         //display operator selected and add to operatorArray
         operatorArray.push(e.target.id);
@@ -83,17 +86,18 @@ operatorButtons.forEach((button) => {
         //if operator is selected first
 
 
+        //if operator is pressed multiple times
+
+
     })
 })
 
 //when equals selected
 const equals = document.querySelector('#equals'); 
 equals.addEventListener('click', function(e) {
-    //second number doesn't exist yet when equal button is clicked
-
     //push second number if it's been inputted, then calculate
-    if (currentArray.length > 0) {
-        numbersArray.push(currentArray.join(''));
+    if (strCurrent.length > 0) {
+        numbersArray.push(strCurrent);
     }
     else { //if no second number inputted, return runningtotal in display
         currentDisplay.textContent = runningTotal;
@@ -108,28 +112,29 @@ equals.addEventListener('click', function(e) {
 
         currentDisplay.textContent = runningTotal;
         document.body.append(currentDisplay);
+
+        strCurrent = runningTotal; //keep runningTotal in strCurrent in case user adds more numbers to total
     }
-    else {  //if equal is clicked with only first number
+    else {  //check if equal is clicked with only first number
         currentDisplay.textContent = numbersArray[0];
         document.body.append(currentDisplay);
     }
 
-    //if equal is clicked with no first or second number
+    //check if equal is clicked with no first or second number
     if (numbersArray.length == 0) {
         currentDisplay.textContent = "0";
         document.body.append(currentDisplay);
     }
     
-    //leave runningtotal in currentArray in case more numbers are inputted onto total after pressing equal
-    currentArray = [];
-    currentArray.push(runningTotal);
+    operatorArray = [];
 })
 
 //when clear selected
 const clear = document.querySelector('#clear');
 clear.addEventListener('click', function(e) {
     clearDisplay();
-    currentArray = [];
+    strCurrent = "";
+    runningTotal = "";
     numbersArray = [];
     operatorArray = [];
 })
