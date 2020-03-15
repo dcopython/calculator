@@ -1,21 +1,111 @@
 function add(numA, numB) {
-    return parseInt(numA) + parseInt(numB);
+    if (numA.toString().indexOf(".") == -1) {
+        numA = parseInt(numA);
+    }
+    else {
+        numA = parseFloat(numA);
+    }
+
+    if (numB.toString().indexOf(".") == -1) {
+        numB = parseInt(numB);
+    }
+    else {
+        numB = parseFloat(numB);
+    }
+
+    return numA + numB;
 }
 
 function subtract(numA, numB) {
-    return parseInt(numA) - parseInt(numB);
+    if (numA.toString().indexOf(".") == -1) {
+        numA = parseInt(numA);
+    }
+    else {
+        numA = parseFloat(numA);
+    }
+
+    if (numB.toString().indexOf(".") == -1) {
+        numB = parseInt(numB);
+    }
+    else {
+        numB = parseFloat(numB);
+    }
+
+    return numA - numB;
 }
 
 function multiply(numA, numB) {
-    return parseInt(numA) * parseInt(numB);
+    if (numA.toString().indexOf(".") == -1) {
+        numA = parseInt(numA);
+    }
+    else {
+        numA = parseFloat(numA);
+    }
+
+    if (numB.toString().indexOf(".") == -1) {
+        numB = parseInt(numB);
+    }
+    else {
+        numB = parseFloat(numB);
+    }
+
+    return numA * numB;
 }
 
 function divide(numA, numB) {
-    return parseInt(numA) / parseInt(numB);
+    if (numA.toString().indexOf(".") == -1) {
+        numA = parseInt(numA);
+    }
+    else {
+        numA = parseFloat(numA);
+    }
+
+    if (numB.toString().indexOf(".") == -1) {
+        numB = parseInt(numB);
+    }
+    else {
+        numB = parseFloat(numB);
+    }
+
+    return numA / numB;
 }
 
+// function operatorCheck(operator) {
+//     document.getElementById(operator).disabled = true;
+// }
+
 function operate(operator, numA, numB) {
-    return window[operator](numA, numB);
+    total = window[operator](numA, numB);
+    if (Number.isInteger(total)) { //return if whole number
+        return total;
+    }
+    else {
+        return total.toFixed(2); //round answer if it has many decimals
+    }
+}
+
+function operateWithNewTotal() {
+    if (operator == "divide") { //check if user tries to divide by 0
+        if (numbersArray[0] == 0 || numbersArray[1] == 0) {
+            alert("Can't divide by 0!");
+            total = "";
+        }
+        else {
+            total = operate(operator, numbersArray[0], numbersArray[1]); //calculate
+
+            numbersArray = [];//clear array and push new total
+            numbersArray.push(total);
+        }
+    }
+    else {
+        total = operate(operator, numbersArray[0], numbersArray[1]); //calculate
+
+        numbersArray = [];//clear array and push new total
+        numbersArray.push(total);
+    }
+
+    currentDisplay.textContent = total; //put new total on display
+    document.body.append(currentDisplay);
 }
 
 function clearDisplay() {
@@ -25,17 +115,17 @@ function clearDisplay() {
 
 //global vars
 const currentDisplay = document.querySelector("#currentdisplay");
-let numbersArray = []; //track joined numbers
-let operatorArray = []; //track operators
-let runningTotal;
-let strCurrent = ""; //track inputted numbers
+let numbersArray = [];
+let total;
+let operator; //track operators
+let currentStr = ""; //track inputted numbers
 
 //display selected numbers when pressed
 const numButtons = document.querySelectorAll('.numbers');
 numButtons.forEach((button) => {
     button.addEventListener('click', function(e) {
 
-        strCurrent += e.target.innerHTML;
+        currentStr += e.target.innerHTML;
 
         currentDisplay.textContent += e.target.innerHTML;
         document.body.append(currentDisplay);
@@ -48,93 +138,84 @@ const operatorButtons = document.querySelectorAll('.operators');
 operatorButtons.forEach((button) => {
     button.addEventListener('click', function(e) {
         //check if user adds more numbers to total after running equals
-        if (numbersArray[0] && numbersArray[0] != strCurrent) {
-                numbersArray[0] = strCurrent;
-                strCurrent = "";
+        //check if operator is inputted first
+        //check if operator is pressed multiple times
+
+        //check if there's inputted number and push to numbersArray
+        if (currentStr.length > 0) {
+            numbersArray.push(currentStr);
         }
 
-        //take inputted number and push to numbersArray
-        if (strCurrent.length > 0) {
-            numbersArray.push(strCurrent);
-        }
+        currentStr = "";  //clear the current array to prep for next number
 
-        //clear the current array to prep for next number
-        strCurrent = "";
-
-        //display operator selected and add to operatorArray
-        operatorArray.push(e.target.id);
-        currentDisplay.textContent += ` ${e.target.innerHTML} `;
-        document.body.append(currentDisplay);
-
-        //if two numbers in numbersArray, calculate and show total, else wait for next number
+        //check if two numbers in numbersArray
         if (numbersArray.length == 2) {
-            runningTotal = operate(operatorArray[0], numbersArray[0], numbersArray[1]);
+            
+            operateWithNewTotal();
 
-            numbersArray = [];
-            numbersArray.push(runningTotal);
-
-            currentDisplay.textContent = runningTotal;
+            //show new total and new operator
+            operator = e.target.id;
+            currentDisplay.textContent += ` ${e.target.innerHTML} `;
             document.body.append(currentDisplay);
-
-            //if operator selected again, calculate and show new operator
-            operatorArray = [];
-            operatorArray.push(e.target.id);
+        }
+        else { //if only one number in numbersArray
+            operator = e.target.id; //display operator selected and add to operatorArray
             currentDisplay.textContent += ` ${e.target.innerHTML} `;
             document.body.append(currentDisplay);
         }
 
-        //if operator is selected first
-
-
-        //if operator is pressed multiple times
-
+        decimal.disabled = false;
 
     })
+})
+
+//when decimal selected
+const decimal = document.getElementById("decimal");
+decimal.addEventListener('click', function(e) {
+    currentStr += `${e.target.innerHTML}`;
+    currentDisplay.textContent  += `${e.target.innerHTML}`;
+    document.body.append(currentDisplay);
+
+    this.disabled = true;
 })
 
 //when equals selected
 const equals = document.querySelector('#equals'); 
 equals.addEventListener('click', function(e) {
-    //push second number if it's been inputted, then calculate
-    if (strCurrent.length > 0) {
-        numbersArray.push(strCurrent);
+    //check if equal is clicked with no first or second number
+    if (numbersArray.length == 0) {
+        currentDisplay.textContent = "0";
+        document.body.append(currentDisplay);
     }
-    else { //if no second number inputted, return runningtotal in display
-        currentDisplay.textContent = runningTotal;
+
+    //add second number to array if it's been inputted
+    if (currentStr.length > 0) {
+        numbersArray.push(currentStr);
+        currentStr = "";
+    }
+    else { //if no second number inputted, return total in display
+        currentDisplay.textContent = total;
         document.body.append(currentDisplay);
     }
 
     if (numbersArray.length == 2) {
-        runningTotal = operate(operatorArray[0], numbersArray[0], numbersArray[1]);
+        operateWithNewTotal();
 
-        numbersArray = [];
-        numbersArray.push(runningTotal);
-
-        currentDisplay.textContent = runningTotal;
-        document.body.append(currentDisplay);
-
-        strCurrent = runningTotal; //keep runningTotal in strCurrent in case user adds more numbers to total
     }
     else {  //check if equal is clicked with only first number
         currentDisplay.textContent = numbersArray[0];
         document.body.append(currentDisplay);
     }
 
-    //check if equal is clicked with no first or second number
-    if (numbersArray.length == 0) {
-        currentDisplay.textContent = "0";
-        document.body.append(currentDisplay);
-    }
-    
-    operatorArray = [];
+    operator = ""; //clear the array after equals is ran
 })
 
 //when clear selected
 const clear = document.querySelector('#clear');
 clear.addEventListener('click', function(e) {
     clearDisplay();
-    strCurrent = "";
-    runningTotal = "";
+    currentStr = "";
+    total = "";
+    operator = "";
     numbersArray = [];
-    operatorArray = [];
 })
